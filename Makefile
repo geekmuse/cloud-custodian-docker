@@ -1,7 +1,5 @@
 VERSION ?= 0.8.33.0
 REGION ?= us-east-1
-REGISTRY ?= docker.io
-DOCKER_ID ?= 
 
 .DEFAULT_TARGET: help-cmds
 
@@ -25,9 +23,9 @@ dkr-clean:		## Clean up all local deps.
 
 
 .PHONY: dkr-build
-dkr-build:		## Builds a Docker image and tags it.  Requires `DOCKER_ID`.
+dkr-build:		## Builds a Docker image and tags it.
 	@docker build -t "cloud-custodian:$(VERSION)" .
-	@docker tag "cloud-custodian:$(VERSION)" "$(REGISTRY)/$(DOCKER_ID)/cloud-custodian:$(VERSION)"
+	@docker tag "cloud-custodian:$(VERSION)" "cloud-custodian:$(VERSION)"
 
 
 .PHONY: dkr-build-clean		##	(clean deps build)
@@ -35,9 +33,9 @@ dkr-build-clean: clean deps build
 
 
 .PHONY: dkr-build-nocache
-dkr-build-nocache:		## Builds Docker image using "--no-cache" and tags it.  Required `DOCKER_ID`.
+dkr-build-nocache:		## Builds Docker image using "--no-cache" and tags it.
 	@docker build --no-cache -t "cloud-custodian:$(VERSION)" .
-	@docker tag "cloud-custodian:$(VERSION)" "$(REGISTRY)/$(DOCKER_ID)/cloud-custodian:$(VERSION)"
+	@docker tag "cloud-custodian:$(VERSION)" "cloud-custodian:$(VERSION)"
 
 
 .PHONY: dkr-tag-latest
@@ -45,40 +43,34 @@ dkr-tag-latest:			## Tags `VERSION` image with "latest".
 	@docker tag "cloud-custodian:$(VERSION)" cloud-custodian:latest
 
 
-.PHONY: dkr-push
-dkr-push:				## Push image to docker.io registry.  Requires `DOCKER_ID`.
-	@docker login --username "$(DOCKER_ID)"
-	@docker push "$(REGISTRY)/$(DOCKER_ID)/cloud-custodian:$(VERSION)"
-
-
 .PHONY: cust-lambda
-cust-lambda:			## Runs "c7n-mailer" with "--update-lambda" flag.  Requires `DOCKER_ID` and AWS environment credentials.
+cust-lambda:			## Runs "c7n-mailer" with "--update-lambda" flag.  Requires AWS environment credentials.
 	@docker run \
 		-e AWS_ACCESS_KEY_ID="${AWS_ACCESS_KEY_ID}" \
 		-e AWS_SECRET_ACCESS_KEY="${AWS_SECRET_ACCESS_KEY}" \
 		-e AWS_DEFAULT_REGION="$(REGION)" \
 		-v "$(CURDIR)/logs:/tmp" \
-		"$(REGISTRY)/$(DOCKER_ID)/cloud-custodian:$(VERSION)" \
+		"cloud-custodian:$(VERSION)" \
 		-c "/usr/local/bin/c7n-mailer --config mailer.yml --update-lambda"
 
 
 .PHONY: cust-run
-cust-run:				## Run custodian.  Requires `DOCKER_ID` and AWS environment credentials.
+cust-run:				## Run custodian.  Requires AWS environment credentials.
 	@docker run \
 		-e AWS_ACCESS_KEY_ID="${AWS_ACCESS_KEY_ID}" \
 		-e AWS_SECRET_ACCESS_KEY="${AWS_SECRET_ACCESS_KEY}" \
 		-e AWS_DEFAULT_REGION="$(REGION)" \
 		-v "$(CURDIR)/logs:/tmp" \
-		"$(REGISTRY)/$(DOCKER_ID)/cloud-custodian:$(VERSION)" \
+		"cloud-custodian:$(VERSION)" \
 		-c "/usr/local/bin/custodian run --output-dir=/tmp policy.yml; /usr/local/bin/c7n-mailer --config mailer.yml --run"
 
 
 .PHONY: cust-dryrun
-cust-dryrun:			## Run custodian in dry-run mode.  Requires `DOCKER_ID` and AWS environment credentials.
+cust-dryrun:			## Run custodian in dry-run mode.  Requires AWS environment credentials.
 	@docker run \
 		-e AWS_ACCESS_KEY_ID="${AWS_ACCESS_KEY_ID}" \
 		-e AWS_SECRET_ACCESS_KEY="${AWS_SECRET_ACCESS_KEY}" \
 		-e AWS_DEFAULT_REGION="$(REGION)" \
 		-v "$(CURDIR)/logs:/tmp" \
-		"$(REGISTRY)/$(DOCKER_ID)/cloud-custodian:$(VERSION)" \
+		"cloud-custodian:$(VERSION)" \
 		-c "/usr/local/bin/custodian run --dry-run --output-dir=/tmp policy.yml; /usr/local/bin/c7n-mailer --config mailer.yml --run"
