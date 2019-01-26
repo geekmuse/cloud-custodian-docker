@@ -2,3 +2,5 @@ custodian.tar.gz
 Dockerfile
 Makefile
 .gitignore
+logs
+*.example.yml
