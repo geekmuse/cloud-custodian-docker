@@ -12,13 +12,6 @@ Both of these points arose as key considerations when recently implementing Cust
 That said, this isn't intended as a "better" implementation, just one that suits my needs.  Also, this is a from-scratch recreation of functionality for my recent client project, as the client owns the original work product -- in this case, that's a good thing, as I intend to provide full Terraform code to hook this image into AWS Batch and Terraform to establish all the necessary prerequisite resources (S3 bucket, SQS queue, etc.) for Custodian to run successfully in an account.
 
 
-## To Install
-
-`docker pull docker.io/geekmuse/cloud-custodian:0.8.33.0`
-
-(This assumes you have a local Docker client installed.)
-
-
 ## Local Usage
 
 ### Building
