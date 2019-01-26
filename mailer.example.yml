@@ -1,0 +1,3 @@
+queue_url: https://sqs.us-east-1.amazonaws.com/1234567890/c7n-mailer-test
+role: arn:aws:iam::123456790:role/c7n-mailer-test
+from_address: you@example.com

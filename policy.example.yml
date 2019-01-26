@@ -1,0 +1,23 @@
+---
+
+policies:
+  - name: tag-compliance
+    resource: ec2
+    description: |
+      Schedule a resource that does not meet tag compliance policies
+      to be stopped in four days.
+    filters:
+      - "tag:OwnerContact": absent
+    actions:
+      - type: mark-for-op
+        op: stop
+        days: 4
+      - type: notify
+        template: default
+        priority_header: '2'
+        subject: testing the c7n mailer
+        to:
+          - you@example.com
+        transport:
+          type: sqs
+          queue: https://sqs.us-east-1.amazonaws.com/1234567890/c7n-mailer-test
