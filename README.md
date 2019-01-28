@@ -19,7 +19,7 @@ That said, this isn't intended as a "better" implementation, just one that suits
 - set up an email to send from in SES in whatever AWS region you'll be deploying into.  Set the email address as the `mail_from` variable (`terraform/terraform.example.tfvars` file).
 - `$ chmod +x terraform/tf`
 - set `AWS_PROFILE` or `AWS_ACCESS_KEY_ID`/`AWS_SECRET_ACCESS_KEY` environment variables
-- `cd terraform`
+- `$ cd terraform`
 - Remove `.example` from any files that include it in the name, and replace the example values with values appropriate to your implementation.
 - `$ . ./tf init {region}` (`{region}` being whatever AWS region you want to run in)
 - `$ terraform plan`
@@ -36,16 +36,16 @@ That said, this isn't intended as a "better" implementation, just one that suits
 
 *Run terraform commands above first!*
 
-- `make dkr-deps`
-- `make dkr-build`
-- `make dkr-clean`
+- `$ make dkr-deps`
+- `$ make dkr-build`
+- `$ make dkr-clean`
 - Still authenticated (e.g. `AWS_PROFILE` or `AWS_ACCESS_KEY_ID`/`AWS_SECRET_ACCESS_KEY`), `make dkr-push-latest` will push your locally built container to your new ECR repo.  This must happen at least once before attempting to run the job through AWS Batch.
 
 ### Docker - Running
 
 Using the provided `Makefile`, you can run this container locally.  You need to set the `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, and `AWS_DEFAULT_REGION` environment variables to do so.  You also need a `./logs` directory present.  Steps to run:
 
-- `mkdir logs`
+- `$ mkdir logs`
 - export AWS_* env variables.
-- `make cust-lambda` (this sets up the Lambda for the mailer)
-- `make cust-run` (this runs custodian and the mailer)
+- `$ make cust-lambda` (this sets up the Lambda for the mailer)
+- `$ make cust-run` (this runs custodian and the mailer)
