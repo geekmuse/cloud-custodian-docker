@@ -16,7 +16,7 @@ That said, this isn't intended as a "better" implementation, just one that suits
 
 ### AWS Account - First-Time Setup
 
-- set up an email to send from in SES in whatever AWS region you'll be deploying into.  Set the email address as the `mail_from` variable.
+- set up an email to send from in SES in whatever AWS region you'll be deploying into.  Set the email address as the `mail_from` variable (`terraform/terraform.example.tfvars` file).
 - `$ chmod +x terraform/tf`
 - set `AWS_PROFILE` or `AWS_ACCESS_KEY_ID`/`AWS_SECRET_ACCESS_KEY` environment variables
 - `cd terraform`
