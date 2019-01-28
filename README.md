@@ -2,7 +2,7 @@
 
 ## Why?
 
-To provide a standalone containerized runtime for Capital One's Cloud Custodian project.  Maik Ellerbrock already provides a [great implementation](https://github.com/ellerbrock/alpine-cloud-custodian) as well, but mine differs on two points:
+To provide a standalone containerized runtime for Capital One's [Cloud Custodian](https://www.capitalone.io/) project.  Maik Ellerbrock already provides a [great implementation](https://github.com/ellerbrock/alpine-cloud-custodian) as well, but mine differs on two points:
 
 1.  The policy and mailer configs are baked into the container image, and
 2.  `c7n-mailer` is configured in the container and available for use
@@ -16,8 +16,16 @@ That said, this isn't intended as a "better" implementation, just one that suits
 
 ### AWS Account - First-Time Setup
 
-- Create an SQS queue called `c7n-mailer` in your account.
-- Create an IAM role called `c7n-mailer` in your account.  The role can be configured as described [here](https://devops4solutions.com/cloud-custodian-configure-email/) (Terraform will soon be provided here to assist with this configuration).
+- set up an email to send from in SES in whatever AWS region you'll be deploying into.  Set the email address as the `mail_from` variable.
+- `$ chmod +x terraform/tf`
+- set `AWS_PROFILE` or `AWS_ACCESS_KEY_ID`/`AWS_SECRET_ACCESS_KEY` environment variables
+- `cd terraform`
+- Remove `.example` from any files that include it in the name, and replace the example values with values appropriate to your implementation.
+- `$ . ./tf init {region}` (`{region}` being whatever AWS region you want to run in)
+- `$ terraform plan`
+- `$ terraform apply`
+- The `init` module sets up an S3 bucket for receiving Custodian output, some IAM elements, and an SQS queue for the mailer.  The `batch` module sets up an ECR repo, IAM elements, and all of the AWS Batch elements necessary to run Custodian in a container.
+
 
 ### Docker - First-Time Setup
 
@@ -26,9 +34,12 @@ That said, this isn't intended as a "better" implementation, just one that suits
 
 ### Docker - Building/Updating Images
 
+*Run terraform commands above first!*
+
 - `make dkr-deps`
 - `make dkr-build`
 - `make dkr-clean`
+- Still authenticated (e.g. `AWS_PROFILE` or `AWS_ACCESS_KEY_ID`/`AWS_SECRET_ACCESS_KEY`), `make dkr-push-latest` will push your locally built container to your new ECR repo.  This must happen at least once before attempting to run the job through AWS Batch.
 
 ### Docker - Running
 

@@ -1,0 +1,102 @@
+#!/usr/bin/env bash
+
+#################################################
+# Init script - I live alongside your TF files
+# Run me before you try to run anything like:
+#   terraform plan ...
+#   terraform apply ...
+#   terraform destroy ...
+#################################################
+
+set +x
+
+OP="${1}"
+TFREGION="${2}"
+TFENV=""
+TF_VAR_region=""
+TF_VAR_resource_type=""
+TF_VAR_tfversion=$(terraform --version | head -n 1 | awk '{print $2}')
+
+source project.properties
+
+# overrides
+if [[ -z "${3}" ]]; then
+    TFENV="${DEFAULT_ENV}"
+fi
+
+if [[ ! -z "${4}" ]]; then
+    BACKEND_BUCKET="${4}"
+fi
+
+if [[ ! -z "${5}" ]]; then
+    BUCKET_BUCKET_REGION="${5}"
+fi
+
+function check_env() {
+    local tfenv="${1}"
+
+    if ! [[ "${tfenv}" == "dev" || "${tfenv}" == "prod" ]]; then
+        echo -e "Environment ${tfenv} isn't an option!  Aborting."
+        exit 1
+    fi
+}
+
+function check_region() {
+    local tfregion="${1}"
+
+    if [[ "${tfregion}" == "global" ]]; then
+        TF_VAR_region="${DEFAULT_REGION}"
+        TF_VAR_resource_type="global"
+    else
+        TF_VAR_region="${tfregion}"
+        TF_VAR_resource_type="regional"
+    fi
+
+}
+
+function export_globals() {
+    echo -e "Exporting 'region' variable as 'TF_VAR_region' = '${TF_VAR_region}'"
+    export TF_VAR_region
+    echo -e "Exporting 'resource_type' variable as 'TF_VAR_resource_type' = '${TF_VAR_resource_type}'"
+    export TF_VAR_resource_type
+    echo -e "Exporting 'env' variable as 'TF_VAR_env' = '${TFENV}'"
+    export TF_VAR_env="${TFENV}"
+    echo -e "Exporting 'project' variable as 'TF_VAR_project' = '${PROJECT_NAME}'"
+    export TF_VAR_project="${PROJECT_NAME}"
+    echo -e "Exporting 'owner' variable as 'TF_VAR_owner' = '${OWNER}'"
+    export TF_VAR_owner="${OWNER}"
+    echo -e "Exporting 'tfversion' variable as 'TF_VAR_tfversion' = '${TF_VAR_tfversion}'"
+    export TF_VAR_tfversion
+}
+
+function init() {
+    local tfregion="${1}"
+    local tfenv="${2}"
+    local bucket="${3}"
+    local bucket_region="${4}"
+
+    local init_ret_code=""
+    local project_dir=${PROJECT_NAME}
+    local bucket_path="tfstates/${project_dir}/${tfregion}/${tfenv}/terraform.tfstate"
+
+    echo -e "Running 'terraform init' for ${tfenv} env from s3://${bucket}/${bucket_path} in ${bucket_region}."
+    terraform init \
+        -backend=true \
+        -backend-config "bucket=${bucket}" \
+        -backend-config "region=${bucket_region}" \
+        -backend-config "encrypt=true" \
+        -backend-config "key=${bucket_path}"
+
+    init_ret_code="$?"
+    if [[ "${init_ret_code}" == "0" ]]; then
+        echo "'terraform init' completed successfully."
+    else
+        echo "'terraform init' failed with code ${init_ret_code}.  Aborting."
+        exit 1
+    fi
+}
+
+check_region "${TFREGION}"
+check_env "${TFENV}"
+init "${TFREGION}" "${TFENV}" "${BACKEND_BUCKET}" "${BACKEND_BUCKET_REGION}"
+export_globals

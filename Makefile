@@ -43,6 +43,20 @@ dkr-tag-latest:			## Tags `VERSION` image with "latest".
 	@docker tag "cloud-custodian:$(VERSION)" cloud-custodian:latest
 
 
+.PHONY: dkr-push
+dkr-push:				## Push image with tag `VERSION` to ECR.		
+	@$$(aws ecr get-login --no-include-email --region us-east-1)
+	@docker tag "cloud-custodian:$(VERSION)" "$$(aws sts get-caller-identity --query 'Account' --output text).dkr.ecr.$(REGION).amazonaws.com/cloud-custodian:$(VERSION)"
+	@docker push "$$(cd terraform && terraform output -json | jq -r '.c7n_docker_repo_url.value'):$(VERSION)"
+
+
+.PHONY: dkr-push-latest
+dkr-push-latest:		## Tag image of version `VERSION` with `latest` tag and push to ECR.			
+	@$$(aws ecr get-login --no-include-email --region us-east-1)
+	@docker tag "cloud-custodian:$(VERSION)" "$$(aws sts get-caller-identity --query 'Account' --output text).dkr.ecr.$(REGION).amazonaws.com/cloud-custodian:latest"
+	@docker push  "$$(cd terraform && terraform output -json | jq -r '.c7n_docker_repo_url.value'):latest"
+
+
 .PHONY: cust-lambda
 cust-lambda:			## Runs "c7n-mailer" with "--update-lambda" flag.  Requires AWS environment credentials.
 	@docker run \

@@ -4,3 +4,6 @@ Makefile
 .gitignore
 logs
 *.example.yml
+terraform
+README.md
+LICENSE
