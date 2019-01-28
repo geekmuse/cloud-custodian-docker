@@ -14,6 +14,20 @@ That said, this isn't intended as a "better" implementation, just one that suits
 
 ## Usage
 
+### Prerequisites
+
+You'll need these installed locally to to use this solution.
+
+- Local Docker client
+- Terraform (version 0.11.11) -- versions are pinned in `terraform/main.tf`
+- jq
+- make
+- grep
+- wget
+- tar
+- awscli
+- bash
+
 ### AWS Account - First-Time Setup
 
 - set up an email to send from in SES in whatever AWS region you'll be deploying into.  Set the email address as the `mail_from` variable (`terraform/terraform.example.tfvars` file).
