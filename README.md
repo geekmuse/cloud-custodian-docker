@@ -18,15 +18,12 @@ That said, this isn't intended as a "better" implementation, just one that suits
 
 You'll need these installed locally to to use this solution.
 
-- Local Docker client
-- Terraform (version 0.11.11) -- versions are pinned in `terraform/main.tf`
-- jq
-- make
-- grep
-- wget
-- tar
-- awscli
+- [Local Docker client](https://www.docker.com/products/docker-desktop)
+- [Terraform](https://www.terraform.io/) [(version 0.11.11)](https://releases.hashicorp.com/terraform/0.11.11/) -- versions are pinned in `terraform/main.tf`
+- [jq](https://stedolan.github.io/jq/)
+- [awscli](https://github.com/aws/aws-cli)
 - bash
+- standard GNU tools:  mv, grep, awk, sort, wget, tar, make
 
 ### AWS Account - First-Time Setup
 
